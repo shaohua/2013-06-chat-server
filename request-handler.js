@@ -11,17 +11,15 @@ var handleRequest = function(request, response) {
 
 
   var storage = {};
-
-
   var response_body = [];
-
-  var post_data = [];
 
 
   request.on('data', function(data){
-
-    if(request.method ==='GET'){
-      console.log('GET request');
+    //regrex testing for :8080/classes/.*
+    if(!request.url.match(/\:\d+\/classes\/.*/)){
+      statusCode = 404;
+      response_body = null;
+    } else if(request.method ==='GET'){
       //if client sends a GET request
       //200
       //try getting something from storage for client
@@ -29,26 +27,33 @@ var handleRequest = function(request, response) {
       //else something else
       statusCode = 200;
       response_body = storage[request.url] || [];
+      response_body = JSON.stringify(response_body);
 
     } else if(request.method === 'POST') {
       //everything here is for POST
       //if data is empty
+      statusCode = 302;
       if(data === undefined){
         //do nothing
       } else {
-        console.log('POST data\n' + data);
+        // console.log('POST data\n' + data);
+        //DO NOT stringify in this case because of the newline
+        console.log('data---', typeof data, '\n', data);
+        // data = '{' + data + '}';
+        console.log('---', data, request.url);
+        storage[request.url] = JSON.parse(data);
+        response_body = '\n';
       }
       //else
       //validate data befor inserting to storage
       //save the data to storage
-      // statusCode = 302;
       // response_body = {
       //   'results': [{'username':'user1', 'message':'msg1', 'createdAt':'today'},
       //               {'username':'user2', 'message':'msg2', 'createdAt':'yesterday'}]
       // };
     }
     response.writeHead(statusCode, headers);
-    response.end(JSON.stringify(response_body), 'utf8');
+    response.end(response_body, 'utf8');
 
   });
 
