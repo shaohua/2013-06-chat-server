@@ -1,40 +1,61 @@
-/* You should implement your request handler function in this file.
- * But you need to pass the function to http.createServer() in
- * basic-server.js.  So you must figure out how to export the function
- * from this file and include it in basic-server.js. Check out the
- * node module documentation at http://nodejs.org/api/modules.html. */
+var defaultCorsHeaders = require("./cors-header.js").defaultCorsHeaders;
 
-// var defaultCorsHeaders = require('./basic-server.js').defaultCorsHeaders;
 var handleRequest = function(request, response) {
   console.log("Serving request type " + request.method + " for url " + request.url);
 
-  var statusCode = 200;
+  var statusCode;
 
   var headers = defaultCorsHeaders;
 
   headers['Content-Type'] = "text/plain";
 
-  response.writeHead(statusCode, headers);
 
   var storage = {};
   // storage[request.url] =
-  // console.log('request obj', request);
+
+  var output = [];
+
+  var post_data = [];
 
 
-  var output = {
-    'results': [{'username':'user1', 'message':'msg1', 'createdAt':'today'},
-                {'username':'user2', 'message':'msg2', 'createdAt':'yesterday'}]
-  };
+  request.on('data', function(data){
 
-  response.write(JSON.stringify(output), 'utf8');
-  response.end();
+    if(request.method ==='GET'){
+      console.log('GET request');
+      //if client sends a GET request
+      //200
+      //try getting something from storage for client
+      //if there is a hit, 200
+      //else something else
+      statusCode = 200;
+      // output = [];
+
+    } else if(request.method === 'POST') {
+      //everything here is for POST
+      //if data is empty
+      if(data === undefined){
+        //do nothing
+      } else {
+        console.log('POST data\n' + data);
+      }
+      //else
+      //validate data befor inserting to storage
+      //save the data to storage
+      // statusCode = 302;
+      // output = {
+      //   'results': [{'username':'user1', 'message':'msg1', 'createdAt':'today'},
+      //               {'username':'user2', 'message':'msg2', 'createdAt':'yesterday'}]
+      // };
+    }
+    response.writeHead(statusCode, headers);
+    response.end('\n', 'utf8');
+
+  });
+
+
+  // response.end(JSON.stringify(output), 'utf8');
 };
 
-var defaultCorsHeaders = {
-  "access-control-allow-origin": "*",
-  "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "access-control-allow-headers": "content-type, accept",
-  "access-control-max-age": 10 // Seconds.
-};
+
 
 exports.handleRequest = handleRequest;
