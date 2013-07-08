@@ -13,7 +13,7 @@ var handleRequest = function(request, response) {
   var storage = {};
   // storage[request.url] =
 
-  var output = [];
+  var response_body = [];
 
   var post_data = [];
 
@@ -28,7 +28,7 @@ var handleRequest = function(request, response) {
       //if there is a hit, 200
       //else something else
       statusCode = 200;
-      // output = [];
+      // response_body = [];
 
     } else if(request.method === 'POST') {
       //everything here is for POST
@@ -42,7 +42,7 @@ var handleRequest = function(request, response) {
       //validate data befor inserting to storage
       //save the data to storage
       // statusCode = 302;
-      // output = {
+      // response_body = {
       //   'results': [{'username':'user1', 'message':'msg1', 'createdAt':'today'},
       //               {'username':'user2', 'message':'msg2', 'createdAt':'yesterday'}]
       // };
@@ -53,7 +53,7 @@ var handleRequest = function(request, response) {
   });
 
 
-  // response.end(JSON.stringify(output), 'utf8');
+  // response.end(JSON.stringify(response_body), 'utf8');
 };
 
 
