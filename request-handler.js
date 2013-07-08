@@ -11,7 +11,7 @@ var handleRequest = function(request, response) {
 
 
   var storage = {};
-  // storage[request.url] =
+
 
   var response_body = [];
 
@@ -28,7 +28,7 @@ var handleRequest = function(request, response) {
       //if there is a hit, 200
       //else something else
       statusCode = 200;
-      // response_body = [];
+      response_body = storage[request.url] || [];
 
     } else if(request.method === 'POST') {
       //everything here is for POST
@@ -48,12 +48,10 @@ var handleRequest = function(request, response) {
       // };
     }
     response.writeHead(statusCode, headers);
-    response.end('\n', 'utf8');
+    response.end(JSON.stringify(response_body), 'utf8');
 
   });
 
-
-  // response.end(JSON.stringify(response_body), 'utf8');
 };
 
 
