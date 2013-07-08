@@ -15,7 +15,19 @@ var handleRequest = function(request, response) {
   headers['Content-Type'] = "text/plain";
 
   response.writeHead(statusCode, headers);
-  response.end("Hello, World!");
+
+  var storage = {};
+  // storage[request.url] =
+  // console.log('request obj', request);
+
+
+  var output = {
+    'results': [{'username':'user1', 'message':'msg1', 'createdAt':'today'},
+                {'username':'user2', 'message':'msg2', 'createdAt':'yesterday'}]
+  };
+
+  response.write(JSON.stringify(output), 'utf8');
+  response.end();
 };
 
 var defaultCorsHeaders = {
