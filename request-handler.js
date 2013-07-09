@@ -2,6 +2,7 @@ var defaultCorsHeaders = require("./cors-header.js").defaultCorsHeaders;
 var _ = require('underscore');
 var fs = require('fs');
 var CHATLOG = 'chatlog.txt';
+var chatPath = '/Users/hackreactor/code/haoliu119/2013-06-chat-client/';
 
 var storage = {};
 
@@ -52,8 +53,17 @@ var handleRequest = function(request, response) {
       endResponse(404);
     }
 
-  }else{
-    console.log('here');
+  }else if(request.url==='/'){
+    console.log('Serving the html and js file of chat client.');
+    //read the file
+    fs.readFile(chatPath + 'index.html', {'encoding': 'utf8'}, function(err, data){
+      if (err) throw err;
+      response_body = data;
+      endResponse(200);
+    });
+    //serve the file
+
+  }else {
     endResponse(404);
   }
 
