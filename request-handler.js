@@ -27,6 +27,7 @@ var handleRequest = function(request, response) {
 
 
   if(request.method ==='GET'){
+    console.log(storage);
     statusCode = 200;
     response_body = storage[request.url] || [];
     response_body = JSON.stringify({'results': response_body});
