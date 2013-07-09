@@ -1,7 +1,20 @@
 var defaultCorsHeaders = require("./cors-header.js").defaultCorsHeaders;
 var _ = require('underscore');
+var fs = require('fs');
+var CHATLOG = 'chatlog.txt';
 
 var storage = {};
+
+fs.exists(CHATLOG, function (exists) {
+  if(exists){
+    fs.readFile(CHATLOG, {'encoding':'utf8'}, function (err, data) {
+      if (err) throw err;
+      storage = JSON.parse(data);
+    });
+  }
+});
+
+
 
 var handleRequest = function(request, response) {
   console.log("Serving request type " + request.method + " for url " + request.url);
@@ -32,6 +45,11 @@ var handleRequest = function(request, response) {
       storage[request.url] = storage[request.url] || [];
       storage[request.url].push(inputData);
       endResponse(statusCode);
+
+      fs.writeFile(CHATLOG, JSON.stringify(storage), function (err) {
+        if (err) throw err;
+      });
+
     });
   }else{
     endResponse(404);
