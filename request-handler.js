@@ -1,35 +1,33 @@
 var defaultCorsHeaders = require("./cors-header.js").defaultCorsHeaders;
+var _ = require('underscore');
+
+var storage = {};
 
 var handleRequest = function(request, response) {
   console.log("Serving request type " + request.method + " for url " + request.url);
 
-  var statusCode;
-
+  var statusCode = 200;
   var headers = defaultCorsHeaders;
+  headers['Content-Type'] = "application/json";
 
-  headers['Content-Type'] = "text/plain";
-
-
-  var storage = {};
   var response_body = [];
 
+  console.log('step-1-main', request.method);
 
-  request.on('data', function(data){
-    //regrex testing for :8080/classes/.*
-    if(!request.url.match(/\:\d+\/classes\/.*/)){
-      statusCode = 404;
-      response_body = null;
-    } else if(request.method ==='GET'){
-      //if client sends a GET request
-      //200
-      //try getting something from storage for client
-      //if there is a hit, 200
-      //else something else
-      statusCode = 200;
-      response_body = storage[request.url] || [];
-      response_body = JSON.stringify(response_body);
+  if(request.method ==='GET'){
+    console.log('step-2-GET');
+    statusCode = 200;
+    response_body = storage[request.url] || [];
+    response_body = JSON.stringify(response_body);
+    endResponse(statusCode);
+  }else if(request.method === 'POST') {
+    console.log('step-3-POST');
+    request.setEncoding('utf8');
 
-    } else if(request.method === 'POST') {
+    var chunks = [];
+    request.on('data', function(data){
+      chunks.push(data);
+
       //everything here is for POST
       //if data is empty
       statusCode = 302;
@@ -37,12 +35,17 @@ var handleRequest = function(request, response) {
         //do nothing
       } else {
         // console.log('POST data\n' + data);
-        //DO NOT stringify in this case because of the newline
-        console.log('data---', typeof data, '\n', data);
+        // console.log('data---', typeof data, '\n', data);
         // data = '{' + data + '}';
-        console.log('---', data, request.url);
-        storage[request.url] = JSON.parse(data);
+        // console.log('---', data, request.url);
+        var inputData = _( JSON.parse(data) ).extend({'createdAt': new Date()});
+        storage[request.url] = storage[request.url] || [];
+        storage[request.url].push(inputData);
+        //DO NOT stringify in this case because of the newline
+        console.log('storage', storage);
         response_body = '\n';
+        response_body = JSON.stringify(response_body);
+
       }
       //else
       //validate data befor inserting to storage
@@ -51,12 +54,19 @@ var handleRequest = function(request, response) {
       //   'results': [{'username':'user1', 'message':'msg1', 'createdAt':'today'},
       //               {'username':'user2', 'message':'msg2', 'createdAt':'yesterday'}]
       // };
-    }
+    });
+    request.on('end', function(){
+      chunks = chunks.join('');
+      endResponse(statusCode);
+    });
+  }else{
+    endResponse(404);
+  }
+
+  function endResponse(statuscode){
     response.writeHead(statusCode, headers);
-    response.end(response_body, 'utf8');
-
-  });
-
+    response.end(response_body);
+  }
 };
 
 
