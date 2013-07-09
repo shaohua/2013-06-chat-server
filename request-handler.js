@@ -19,7 +19,6 @@ fs.exists(CHATLOG, function (exists) {
 var handleRequest = function(request, response) {
   console.log("Serving request type " + request.method + " for url " + request.url);
 
-  var statusCode;
   var headers = defaultCorsHeaders;
   headers['contentType'] = "application/json";
   var response_body = ''; //default, string!!!
@@ -27,12 +26,10 @@ var handleRequest = function(request, response) {
   if(request.url.match(/\/classes\/.*/)){
     if(request.method ==='GET'){
       console.log(storage);
-      statusCode = 200;
       response_body = storage[request.url] || [];
       response_body = JSON.stringify({'results': response_body});
-      endResponse(statusCode);
+      endResponse(200);
     }else if(request.method === 'POST') {
-      statusCode = 200;
       var chunks = [];
 
       request.on('data', function(data){
@@ -44,7 +41,7 @@ var handleRequest = function(request, response) {
         var inputData = _( JSON.parse(chunks) ).extend({'createdAt': new Date()});
         storage[request.url] = storage[request.url] || [];
         storage[request.url].push(inputData);
-        endResponse(statusCode);
+        endResponse(200);
 
         fs.writeFile(CHATLOG, JSON.stringify(storage), function (err) {
           if (err) throw err;
