@@ -19,45 +19,50 @@ fs.exists(CHATLOG, function (exists) {
 var handleRequest = function(request, response) {
   console.log("Serving request type " + request.method + " for url " + request.url);
 
-  var statusCode = 200;
+  var statusCode;
   var headers = defaultCorsHeaders;
-  // headers['Content-Type'] = "application/json";
   headers['contentType'] = "application/json";
   var response_body = ''; //default, string!!!
 
-
-  if(request.method ==='GET'){
-    console.log(storage);
-    statusCode = 200;
-    response_body = storage[request.url] || [];
-    response_body = JSON.stringify({'results': response_body});
-    endResponse(statusCode);
-  }else if(request.method === 'POST') {
-    statusCode = 200;
-    var chunks = [];
-
-    request.on('data', function(data){
-      chunks.push(data);
-    });
-
-    request.on('end', function(){
-      chunks = chunks.join('');
-      var inputData = _( JSON.parse(chunks) ).extend({'createdAt': new Date()});
-      storage[request.url] = storage[request.url] || [];
-      storage[request.url].push(inputData);
+  if(request.url.match(/\/classes\/.*/)){
+    if(request.method ==='GET'){
+      console.log(storage);
+      statusCode = 200;
+      response_body = storage[request.url] || [];
+      response_body = JSON.stringify({'results': response_body});
       endResponse(statusCode);
+    }else if(request.method === 'POST') {
+      statusCode = 200;
+      var chunks = [];
 
-      fs.writeFile(CHATLOG, JSON.stringify(storage), function (err) {
-        if (err) throw err;
+      request.on('data', function(data){
+        chunks.push(data);
       });
 
-    });
+      request.on('end', function(){
+        chunks = chunks.join('');
+        var inputData = _( JSON.parse(chunks) ).extend({'createdAt': new Date()});
+        storage[request.url] = storage[request.url] || [];
+        storage[request.url].push(inputData);
+        endResponse(statusCode);
+
+        fs.writeFile(CHATLOG, JSON.stringify(storage), function (err) {
+          if (err) throw err;
+        });
+
+      });
+    } else {
+      endResponse(404);
+    }
+
   }else{
+    console.log('here');
     endResponse(404);
   }
 
   function endResponse(statuscode){
-    response.writeHead(statusCode, headers);
+    console.log('endResponse', statuscode);
+    response.writeHead(statuscode, headers);
     response.end(response_body);
   }
 };
