@@ -10,7 +10,8 @@ var handleRequest = function(request, response) {
   var headers = defaultCorsHeaders;
   // headers['Content-Type'] = "application/json";
   headers['contentType'] = "application/json";
-  var response_body = [];
+  var response_body = ''; //default, string!!!
+
 
   if(request.method ==='GET'){
     statusCode = 200;
@@ -41,6 +42,7 @@ var handleRequest = function(request, response) {
     response.end(response_body);
   }
 };
+
 
 
 exports.handleRequest = handleRequest;
